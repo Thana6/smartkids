@@ -324,7 +324,9 @@ RECENT EVENTS / BLOG
       <span>RECENT EVENTS</span>
       <h2>Smart Kids - Events and Activities</h2>
     </div>
-    <div class="blog-grid stagger-children">
+    <div class="blog-grid stagger-children" id="eventsGrid" aria-live="polite">
+      <!-- Populated automatically from events.json by the script below.
+           These 3 cards are a static fallback shown only if that fetch fails. -->
       <div class="blog-card">
         <div class="img-hover"><img src="https://smartkids25.vercel.app/slider2.jpg" alt="Tamil and Sinhala New Year celebration" loading="lazy"><div class="img-overlay"><i class="fas fa-calendar-check" aria-hidden="true"></i></div></div>
         <div class="content"><span>April 24, 2026</span><h4>Tamil & Sinhala New Year Celebration 2026</h4><p>Joyful celebration with traditional outfits, games, and cultural activities.</p>
@@ -340,24 +342,57 @@ RECENT EVENTS / BLOG
         <div class="content"><span>March 17, 2026</span><h4>1st Anniversary of SmartKids Center</h4><p>A year of love, learning, and joyful growth. Celebrated with cake cutting and fun.</p>
         <a href="https://web.facebook.com/profile.php?id=61573965225366" target="_blank" rel="noopener" style="color:#E8063C; font-weight:500;">Read more →</a></div>
       </div>
-      <div class="blog-card">
-        <div class="placeholder-tile tile-1"><i class="fas fa-campground" aria-hidden="true"></i></div>
-        <div class="content"><span>June 1, 2026</span><h4>Summer Camp 2026 Registration Open</h4><p>Fun-filled summer activities including swimming, arts, and team sports.</p>
-        <a href="https://web.facebook.com/profile.php?id=61573965225366" target="_blank" rel="noopener" style="color:#E8063C; font-weight:500;">Read more →</a></div>
-      </div>
-      <div class="blog-card">
-        <div class="placeholder-tile tile-3"><i class="fas fa-paint-brush" aria-hidden="true"></i></div>
-        <div class="content"><span>May 15, 2026</span><h4>Annual Art Exhibition</h4><p>Showcasing our little artists' masterpieces. Parents are cordially invited.</p>
-        <a href="https://web.facebook.com/profile.php?id=61573965225366" target="_blank" rel="noopener" style="color:#E8063C; font-weight:500;">Read more →</a></div>
-      </div>
-      <div class="blog-card">
-        <div class="placeholder-tile tile-2"><i class="fas fa-graduation-cap" aria-hidden="true"></i></div>
-        <div class="content"><span>May 30, 2026</span><h4>Graduation Day Ceremony</h4><p>Celebrating our Pre-K graduates as they step into the next chapter.</p>
-        <a href="https://web.facebook.com/profile.php?id=61573965225366" target="_blank" rel="noopener" style="color:#E8063C; font-weight:500;">Read more →</a></div>
-      </div>
     </div>
   </div>
 </section>
+
+<!-- ═══════════════════════════════════════════
+EVENTS — loaded from events.json (managed via events-dashboard.html)
+═══════════════════════════════════════════ -->
+<script>
+(function () {
+  var GRID = document.getElementById('eventsGrid');
+  var FB_URL = 'https://web.facebook.com/profile.php?id=61573965225366';
+  var MAX_CARDS = 6;
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function formatDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return '';
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  function cardHtml(ev) {
+    var img = ev.image || 'https://smartkids25.vercel.app/SK-Logo.svg';
+    var link = ev.link || FB_URL;
+    return (
+      '<div class="blog-card">' +
+        '<div class="img-hover"><img src="' + escapeHtml(img) + '" alt="' + escapeHtml(ev.title || '') + '" loading="lazy">' +
+          '<div class="img-overlay"><i class="fas fa-calendar-check" aria-hidden="true"></i></div></div>' +
+        '<div class="content"><span>' + formatDate(ev.date) + '</span>' +
+          '<h4>' + escapeHtml(ev.title || '') + '</h4>' +
+          '<p>' + escapeHtml(ev.description || '') + '</p>' +
+          '<a href="' + escapeHtml(link) + '" target="_blank" rel="noopener" style="color:#E8063C; font-weight:500;">Read more →</a>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  fetch('events.json', { cache: 'no-store' })
+    .then(function (res) { if (!res.ok) throw new Error('events.json not found'); return res.json(); })
+    .then(function (events) {
+      if (!Array.isArray(events) || events.length === 0) return; // keep fallback cards
+      events.sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
+      GRID.innerHTML = events.slice(0, MAX_CARDS).map(cardHtml).join('');
+    })
+    .catch(function () { /* keep the static fallback cards already in the page */ });
+})();
+</script>
 
 <!-- ═══════════════════════════════════════════
 SESSION TIMES
