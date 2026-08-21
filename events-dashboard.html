@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+<title>Events Dashboard – Smart Kids (Admin)</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="https://smartkids25.vercel.app/SK-Logo.svg" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+  :root{
+    --purple:#490D59; --red:#E8063C; --gold:#FFD600; --paper:#FBF7EF;
+    --ink:#2b1630; --muted:#7a6c80; --line:#e7dfe9; --card:#ffffff; --ok:#1e8e3e; --err:#c62828;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:'Jost',sans-serif; background:var(--paper); color:var(--ink); line-height:1.5;}
+  h1,h2,h3{font-family:'Fredoka',sans-serif; margin:0 0 6px;}
+  .wrap{max-width:960px; margin:0 auto; padding:32px 20px 80px;}
+  header.top{background:var(--purple); color:#fff; padding:22px 20px;}
+  header.top .wrap{padding:0; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+  header.top img{height:38px;}
+  header.top .title{font-family:'Fredoka',sans-serif; font-size:1.15rem; font-weight:600;}
+  .pill-btn{background:transparent; border:1.5px solid rgba(255,255,255,.6); color:#fff; padding:7px 16px; border-radius:30px; font-family:'Jost',sans-serif; font-size:.85rem; cursor:pointer; transition:.2s;}
+  .pill-btn:hover{background:rgba(255,255,255,.15);}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:24px; margin-bottom:24px; box-shadow:0 2px 10px rgba(73,13,89,.05);}
+  .card h2{font-size:1.15rem; color:var(--purple);}
+  .muted{color:var(--muted); font-size:.9rem;}
+
+  label{display:block; font-size:.85rem; font-weight:600; margin:14px 0 6px; color:var(--purple);}
+  input[type=text], input[type=password], input[type=url], textarea, select{
+    width:100%; padding:11px 13px; border:1.5px solid var(--line); border-radius:8px; font-family:'Jost',sans-serif; font-size:.95rem; background:#fff; color:var(--ink);
+  }
+  input:focus, textarea:focus, select:focus{outline:none; border-color:var(--purple);}
+  textarea{min-height:90px; resize:vertical;}
+
+  .btn{display:inline-block; background:var(--red); color:#fff; border:none; padding:12px 24px; border-radius:30px; font-family:'Jost',sans-serif; font-weight:600; font-size:.95rem; cursor:pointer; transition:.2s; margin-top:16px;}
+  .btn:hover{filter:brightness(1.08);}
+  .btn.secondary{background:transparent; color:var(--purple); border:1.5px solid var(--purple);}
+  .btn.ghost{background:transparent; color:var(--muted); border:1.5px solid var(--line);}
+  .btn:disabled{opacity:.55; cursor:not-allowed;}
+  .row{display:flex; gap:10px; flex-wrap:wrap;}
+
+  .msg{margin-top:14px; padding:12px 14px; border-radius:8px; font-size:.9rem; display:none;}
+  .msg.show{display:block;}
+  .msg.ok{background:#e6f4ea; color:var(--ok); border:1px solid #b7e1c1;}
+  .msg.err{background:#fdecea; color:var(--err); border:1px solid #f3b8b4;}
+  .msg.info{background:#eef1fb; color:var(--purple); border:1px solid #d6dcf5;}
+
+  .warn-box{background:#fff8e1; border:1px solid #ffe082; color:#8a6d00; padding:14px 16px; border-radius:10px; font-size:.85rem; margin-bottom:18px;}
+  .warn-box i{margin-right:6px;}
+
+  /* Password gate */
+  #gate{min-height:70vh; display:flex; align-items:center; justify-content:center; padding:20px;}
+  #gate .card{max-width:380px; width:100%; text-align:center;}
+  #gate .card i.lock{font-size:2rem; color:var(--purple); margin-bottom:8px;}
+
+  /* Events list */
+  .evt-list{display:flex; flex-direction:column; gap:12px;}
+  .evt-row{display:flex; gap:14px; padding:12px; border:1px solid var(--line); border-radius:10px; align-items:center;}
+  .evt-row img{width:70px; height:70px; object-fit:cover; border-radius:8px; flex-shrink:0; background:#eee;}
+  .evt-row .meta{flex:1; min-width:0;}
+  .evt-row .meta h3{font-size:1rem; margin:0 0 2px;}
+  .evt-row .meta p{margin:0; font-size:.85rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .evt-row .date{font-size:.75rem; color:var(--red); font-weight:600;}
+  .evt-actions{display:flex; gap:6px; flex-shrink:0;}
+  .icon-btn{background:none; border:1px solid var(--line); border-radius:8px; width:34px; height:34px; cursor:pointer; color:var(--purple); font-size:.9rem;}
+  .icon-btn:hover{background:var(--paper);}
+  .icon-btn.del:hover{background:#fdecea; color:var(--err); border-color:#f3b8b4;}
+
+  .empty{text-align:center; padding:30px; color:var(--muted);}
+  .hidden{display:none !important;}
+  .spin{animation:spin 1s linear infinite; display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <img src="https://smartkids25.vercel.app/SK-Logo.svg" alt="">
+      <span class="title">Events Dashboard</span>
+    </div>
+    <div id="topActions" class="row hidden">
+      <button class="pill-btn" id="disconnectBtn" type="button">Disconnect GitHub</button>
+      <button class="pill-btn" id="lockBtn" type="button">Lock</button>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════ PASSWORD GATE ═══════ -->
+<div id="gate">
+  <div class="card">
+    <i class="fas fa-lock lock" aria-hidden="true"></i>
+    <h2>Enter Dashboard Password</h2>
+    <p class="muted">Restricted area — Smart Kids staff only.</p>
+    <input type="password" id="pwInput" placeholder="Password" autocomplete="off">
+    <button class="btn" id="pwSubmit" type="button" style="width:100%;">Unlock</button>
+    <div class="msg err" id="pwMsg">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- ═══════ MAIN DASHBOARD (hidden until unlocked) ═══════ -->
+<div class="wrap hidden" id="dashboard">
+
+  <div class="warn-box">
+    <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+    This page saves events by writing directly to your <strong>Thana6/SmartKids</strong> GitHub repo using a
+    personal access token you provide below. The token is stored only in this browser (never sent anywhere but
+    GitHub) — don't use this dashboard on a shared or public computer, and don't share this page's link publicly.
+  </div>
+
+  <!-- GitHub connection -->
+  <div class="card" id="connectCard">
+    <h2><i class="fab fa-github" aria-hidden="true"></i> Connect to GitHub</h2>
+    <p class="muted">
+      Create a token at
+      <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>
+      → Repository access: <strong>Thana6/SmartKids only</strong> → Permissions: <strong>Contents → Read and write</strong>.
+      Set a reasonable expiry (e.g. 90 days) and paste it below.
+    </p>
+    <label for="ghOwner">Repo owner</label>
+    <input type="text" id="ghOwner" value="Thana6">
+    <label for="ghRepo">Repo name</label>
+    <input type="text" id="ghRepo" value="SmartKids">
+    <label for="ghBranch">Branch</label>
+    <input type="text" id="ghBranch" value="main">
+    <label for="ghToken">GitHub Personal Access Token</label>
+    <input type="password" id="ghToken" placeholder="github_pat_...">
+    <button class="btn" id="connectBtn" type="button">Connect & Load Events</button>
+    <div class="msg" id="connectMsg"></div>
+  </div>
+
+  <!-- Add / Edit form -->
+  <div class="card hidden" id="formCard">
+    <h2 id="formTitle">Add New Event</h2>
+    <label for="fTitle">Title</label>
+    <input type="text" id="fTitle" placeholder="e.g. Annual Sports Day 2026">
+    <label for="fImage">Image URL</label>
+    <input type="url" id="fImage" placeholder="https://smartkids25.vercel.app/slider1.jpg">
+    <label for="fDesc">Description</label>
+    <textarea id="fDesc" placeholder="Short description shown on the card..."></textarea>
+    <p class="muted" id="fDateNote" style="margin-top:12px;">📅 Date & time will be stamped automatically the moment you publish this event.</p>
+    <div class="row">
+      <button class="btn" id="saveBtn" type="button">Publish Event</button>
+      <button class="btn ghost hidden" id="cancelEditBtn" type="button">Cancel Edit</button>
+    </div>
+    <div class="msg" id="formMsg"></div>
+  </div>
+
+  <!-- Events list -->
+  <div class="card hidden" id="listCard">
+    <h2>Current Events <span class="muted" id="countLabel"></span></h2>
+    <p class="muted">Newest first. These are exactly what shows in the "Recent Events" section on the home page (latest 6).</p>
+    <div class="evt-list" id="evtList"></div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var API = 'https://api.github.com';
+  var PASSWORD = '123';
+  var FILE_PATH = 'events.json';
+
+  var gate = document.getElementById('gate');
+  var dashboard = document.getElementById('dashboard');
+  var topActions = document.getElementById('topActions');
+  var pwInput = document.getElementById('pwInput');
+  var pwMsg = document.getElementById('pwMsg');
+
+  var connectCard = document.getElementById('connectCard');
+  var formCard = document.getElementById('formCard');
+  var listCard = document.getElementById('listCard');
+  var connectMsg = document.getElementById('connectMsg');
+  var formMsg = document.getElementById('formMsg');
+  var evtList = document.getElementById('evtList');
+  var countLabel = document.getElementById('countLabel');
+
+  var state = { owner: '', repo: '', branch: '', token: '', sha: null, events: [], editingId: null };
+
+  // ---------- helpers ----------
+  function showMsg(el, text, type) {
+    el.textContent = text;
+    el.className = 'msg show ' + type;
+  }
+  function hideMsg(el) { el.className = 'msg'; }
+
+  function utf8ToB64(str) { return btoa(unescape(encodeURIComponent(str))); }
+  function b64ToUtf8(b64) { return decodeURIComponent(escape(atob(b64.replace(/\n/g, '')))); }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function formatDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return '';
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) +
+      ' · ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  }
+
+  // ---------- password gate ----------
+  function tryUnlock() {
+    if (pwInput.value === PASSWORD) {
+      sessionStorage.setItem('sk_dash_unlocked', '1');
+      gate.classList.add('hidden');
+      dashboard.classList.remove('hidden');
+      topActions.classList.remove('hidden');
+      restoreConnection();
+    } else {
+      showMsg(pwMsg, 'Incorrect password. Try again.', 'err');
+      pwInput.value = '';
+      pwInput.focus();
+    }
+  }
+  document.getElementById('pwSubmit').addEventListener('click', tryUnlock);
+  pwInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') tryUnlock(); });
+
+  document.getElementById('lockBtn').addEventListener('click', function () {
+    sessionStorage.removeItem('sk_dash_unlocked');
+    location.reload();
+  });
+  document.getElementById('disconnectBtn').addEventListener('click', function () {
+    if (!confirm('Remove the saved GitHub token from this browser?')) return;
+    localStorage.removeItem('sk_dash_token');
+    localStorage.removeItem('sk_dash_owner');
+    localStorage.removeItem('sk_dash_repo');
+    localStorage.removeItem('sk_dash_branch');
+    location.reload();
+  });
+
+  if (sessionStorage.getItem('sk_dash_unlocked') === '1') {
+    gate.classList.add('hidden');
+    dashboard.classList.remove('hidden');
+    topActions.classList.remove('hidden');
+  }
+
+  // ---------- GitHub connection ----------
+  function restoreConnection() {
+    var t = localStorage.getItem('sk_dash_token');
+    if (!t) return;
+    document.getElementById('ghOwner').value = localStorage.getItem('sk_dash_owner') || 'Thana6';
+    document.getElementById('ghRepo').value = localStorage.getItem('sk_dash_repo') || 'SmartKids';
+    document.getElementById('ghBranch').value = localStorage.getItem('sk_dash_branch') || 'main';
+    document.getElementById('ghToken').value = t;
+    connect();
+  }
+
+  document.getElementById('connectBtn').addEventListener('click', connect);
+
+  function connect() {
+    state.owner = document.getElementById('ghOwner').value.trim();
+    state.repo = document.getElementById('ghRepo').value.trim();
+    state.branch = document.getElementById('ghBranch').value.trim() || 'main';
+    state.token = document.getElementById('ghToken').value.trim();
+
+    if (!state.owner || !state.repo || !state.token) {
+      showMsg(connectMsg, 'Please fill in owner, repo and token.', 'err');
+      return;
+    }
+    showMsg(connectMsg, 'Connecting…', 'info');
+    loadEvents();
+  }
+
+  function ghHeaders(json) {
+    var h = { Authorization: 'Bearer ' + state.token, Accept: 'application/vnd.github+json' };
+    if (json) h['Content-Type'] = 'application/json';
+    return h;
+  }
+
+  function loadEvents() {
+    var url = API + '/repos/' + state.owner + '/' + state.repo + '/contents/' + FILE_PATH + '?ref=' + state.branch + '&t=' + Date.now();
+    fetch(url, { headers: ghHeaders(false) })
+      .then(function (res) {
+        if (res.status === 404) { state.sha = null; state.events = []; return null; }
+        if (!res.ok) return res.json().then(function (b) { throw new Error(b.message || ('GitHub error ' + res.status)); });
+        return res.json();
+      })
+      .then(function (data) {
+        if (data) {
+          state.sha = data.sha;
+          state.events = JSON.parse(b64ToUtf8(data.content));
+        }
+        localStorage.setItem('sk_dash_token', state.token);
+        localStorage.setItem('sk_dash_owner', state.owner);
+        localStorage.setItem('sk_dash_repo', state.repo);
+        localStorage.setItem('sk_dash_branch', state.branch);
+
+        showMsg(connectMsg, '✅ Connected to ' + state.owner + '/' + state.repo + ' (' + state.branch + ').', 'ok');
+        connectCard.querySelector('h2').innerHTML = '<i class="fab fa-github" aria-hidden="true"></i> Connected — ' + state.owner + '/' + state.repo;
+        formCard.classList.remove('hidden');
+        listCard.classList.remove('hidden');
+        renderList();
+      })
+      .catch(function (err) {
+        showMsg(connectMsg, '❌ ' + err.message + ' — check the token permissions and repo name.', 'err');
+      });
+  }
+
+  // ---------- render list ----------
+  function renderList() {
+    var sorted = state.events.slice().sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
+    countLabel.textContent = '(' + state.events.length + ')';
+    if (sorted.length === 0) {
+      evtList.innerHTML = '<div class="empty">No events yet. Add your first one above.</div>';
+      return;
+    }
+    evtList.innerHTML = sorted.map(function (ev) {
+      return (
+        '<div class="evt-row" data-id="' + escapeHtml(ev.id) + '">' +
+          '<img src="' + escapeHtml(ev.image || '') + '" alt="" onerror="this.style.visibility=\'hidden\'">' +
+          '<div class="meta">' +
+            '<div class="date">' + formatDate(ev.date) + '</div>' +
+            '<h3>' + escapeHtml(ev.title) + '</h3>' +
+            '<p>' + escapeHtml(ev.description || '') + '</p>' +
+          '</div>' +
+          '<div class="evt-actions">' +
+            '<button class="icon-btn edit" title="Edit" type="button"><i class="fas fa-pen"></i></button>' +
+            '<button class="icon-btn del" title="Delete" type="button"><i class="fas fa-trash"></i></button>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+
+    evtList.querySelectorAll('.edit').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.closest('.evt-row').dataset.id;
+        startEdit(id);
+      });
+    });
+    evtList.querySelectorAll('.del').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.closest('.evt-row').dataset.id;
+        deleteEvent(id);
+      });
+    });
+  }
+
+  // ---------- add / edit form ----------
+  var fTitle = document.getElementById('fTitle');
+  var fImage = document.getElementById('fImage');
+  var fDesc = document.getElementById('fDesc');
+  var formTitle = document.getElementById('formTitle');
+  var fDateNote = document.getElementById('fDateNote');
+  var cancelEditBtn = document.getElementById('cancelEditBtn');
+
+  function startEdit(id) {
+    var ev = state.events.find(function (e) { return e.id === id; });
+    if (!ev) return;
+    state.editingId = id;
+    fTitle.value = ev.title || '';
+    fImage.value = ev.image || '';
+    fDesc.value = ev.description || '';
+    formTitle.textContent = 'Edit Event';
+    fDateNote.textContent = '📅 Originally published ' + formatDate(ev.date) + ' — this date stays the same when you edit.';
+    cancelEditBtn.classList.remove('hidden');
+    document.getElementById('saveBtn').textContent = 'Save Changes';
+    formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function resetForm() {
+    state.editingId = null;
+    fTitle.value = ''; fImage.value = ''; fDesc.value = '';
+    formTitle.textContent = 'Add New Event';
+    fDateNote.textContent = '📅 Date & time will be stamped automatically the moment you publish this event.';
+    cancelEditBtn.classList.add('hidden');
+    document.getElementById('saveBtn').textContent = 'Publish Event';
+    hideMsg(formMsg);
+  }
+  cancelEditBtn.addEventListener('click', resetForm);
+
+  document.getElementById('saveBtn').addEventListener('click', function () {
+    var title = fTitle.value.trim();
+    var image = fImage.value.trim();
+    var description = fDesc.value.trim();
+    if (!title || !description) {
+      showMsg(formMsg, 'Please fill in at least a title and description.', 'err');
+      return;
+    }
+    if (state.editingId) {
+      var ev = state.events.find(function (e) { return e.id === state.editingId; });
+      ev.title = title; ev.image = image; ev.description = description;
+    } else {
+      state.events.push({
+        id: 'evt-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+        title: title, image: image, description: description,
+        date: new Date().toISOString()
+      });
+    }
+    persist('Save event: ' + title);
+  });
+
+  function deleteEvent(id) {
+    var ev = state.events.find(function (e) { return e.id === id; });
+    if (!ev) return;
+    if (!confirm('Delete "' + ev.title + '"? This cannot be undone.')) return;
+    state.events = state.events.filter(function (e) { return e.id !== id; });
+    persist('Delete event: ' + ev.title);
+  }
+
+  // ---------- save to GitHub ----------
+  function persist(commitMessage) {
+    var saveBtn = document.getElementById('saveBtn');
+    saveBtn.disabled = true;
+    showMsg(formMsg, 'Saving to GitHub…', 'info');
+
+    var content = JSON.stringify(state.events, null, 2);
+    var body = { message: commitMessage + ' (via events-dashboard)', content: utf8ToB64(content), branch: state.branch };
+    if (state.sha) body.sha = state.sha;
+
+    var url = API + '/repos/' + state.owner + '/' + state.repo + '/contents/' + FILE_PATH;
+    fetch(url, { method: 'PUT', headers: ghHeaders(true), body: JSON.stringify(body) })
+      .then(function (res) {
+        return res.json().then(function (data) {
+          if (!res.ok) throw new Error(data.message || ('GitHub error ' + res.status));
+          return data;
+        });
+      })
+      .then(function (data) {
+        state.sha = data.content.sha;
+        showMsg(formMsg, '✅ Saved! Vercel will redeploy the site automatically within a minute or two.', 'ok');
+        resetForm();
+        renderList();
+      })
+      .catch(function (err) {
+        showMsg(formMsg, '❌ ' + err.message, 'err');
+      })
+      .finally(function () { saveBtn.disabled = false; });
+  }
+})();
+</script>
+</body>
+</html>

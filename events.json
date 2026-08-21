@@ -1,0 +1,44 @@
+[
+  {
+    "id": "evt-seed-1",
+    "title": "Tamil & Sinhala New Year Celebration 2026",
+    "image": "https://smartkids25.vercel.app/slider2.jpg",
+    "description": "Joyful celebration with traditional outfits, games, and cultural activities.",
+    "date": "2026-04-24T00:00:00.000Z"
+  },
+  {
+    "id": "evt-seed-2",
+    "title": "Hiring – Trainee Care Givers",
+    "image": "https://smartkids25.vercel.app/slider3.jpg",
+    "description": "We are looking for caring individuals to join our team. Apply now!",
+    "date": "2026-04-12T00:00:00.000Z"
+  },
+  {
+    "id": "evt-seed-3",
+    "title": "1st Anniversary of SmartKids Center",
+    "image": "https://smartkids25.vercel.app/slider4.jpg",
+    "description": "A year of love, learning, and joyful growth. Celebrated with cake cutting and fun.",
+    "date": "2026-03-17T00:00:00.000Z"
+  },
+  {
+    "id": "evt-seed-4",
+    "title": "Summer Camp 2026 Registration Open",
+    "image": "https://smartkids25.vercel.app/slider5.jpg",
+    "description": "Fun-filled summer activities including swimming, arts, and team sports.",
+    "date": "2026-06-01T00:00:00.000Z"
+  },
+  {
+    "id": "evt-seed-5",
+    "title": "Annual Art Exhibition",
+    "image": "https://smartkids25.vercel.app/slider6.jpg",
+    "description": "Showcasing our little artists' masterpieces. Parents are cordially invited.",
+    "date": "2026-05-15T00:00:00.000Z"
+  },
+  {
+    "id": "evt-seed-6",
+    "title": "Graduation Day Ceremony",
+    "image": "https://smartkids25.vercel.app/slider1.jpg",
+    "description": "Celebrating our Pre-K graduates as they step into the next chapter.",
+    "date": "2026-05-30T00:00:00.000Z"
+  }
+]
